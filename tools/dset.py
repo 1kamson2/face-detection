@@ -16,7 +16,9 @@ torch.set_printoptions(edgeitems=2)
 torch.manual_seed(123)
 from functools import lru_cache
 CSV_PATH = "../FaceDetection/rsrc/age_gender.csv"
-IMG_PATH = "../FaceDetection/rsrc/images/*.jpg"
+IMG_PATH = "../FaceDetection/rsrc/images/"
+IMG_TYPE = "*.jpg"
+
 
 
 class FaceDataset(Dataset):
@@ -49,22 +51,29 @@ class FaceDataset(Dataset):
 class FaceImages(Dataset):
     def __init__(self):
         super().__init__()
-        self.images_dict = self.get_images()
         self.transform = transforms.Compose([   # <-- put it later in test data
-            transforms.Resize(96),
+            transforms.Resize(256),
             transforms.CenterCrop(48),
-            transforms.ToTensor(),
             transforms.Normalize(
                 (0.4915, 0.4823, 0.4468),
                 (0.2470, 0.2435, 0.2616)),])
+        self.images_dict = self.get_images()
 
     def get_images(self):
-        imgs_path = glob.glob(IMG_PATH)
+        imgs_path = glob.glob(IMG_PATH + IMG_TYPE)
         assert len(imgs_path) >= 1, "No images found."
-        img_data = Image.open(imgs_path[0])
-        img_data = self.transform(img_data)
-        print(imgs_path)
-        return img_data
+        img_dict = {}
+        for img in imgs_path:
+            img_t = read_image(img).float()
+            print(img_t.shape)
+            img_t = self.transform(img_t)
+            img_t = torch.mean(img_t, dim=0)
+            img_t = torch.reshape(img_t, (48, 48))
+            img_t = torch.stack([img_t] * 3)
+            img_dict[img[len(IMG_PATH)]::] = img_t
+            print(img_t.shape)
+            print(img_dict)
+        return img_dict
 
 """        img_pixels = read_image(img_path[index]).float()
 img_pixels /= 255.0
