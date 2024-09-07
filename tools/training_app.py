@@ -46,7 +46,14 @@ class TrainingApp:
     def training_loop(self):
         train_dl = self.init_training_data(self)
         loss_fn = self.init_loss_fn(self)
+
         self.model.train()
+        batch_x = np.array([], dtype=np.float32)
+        loss_y = np.array([], dtype=np.float32)
+
+        fig, bl_plot = plt.subplots()
+        bl_plot.set_xlabel('Batch')
+        bl_plot.set_ylabel('Loss')
 
         for batch, (target, model_input) in enumerate(train_dl):
             try:
@@ -58,14 +65,20 @@ class TrainingApp:
                 loss.backward()
                 self.optimizer.step()
 
+                # too fast, we can update on every 10 batch, but plot on every 100?
                 if batch % 10 == 0:
-                    print(f"Current loss: {loss.item():.4f}")
+                    print(batch)
+                    batch_x = np.append(batch_x, batch)
+                    loss_y = np.append(loss_y, loss.item())
+
             except Exception as e:
                 print(f"\n Error: {e} \n"
                     f"Couldn't access the required target: {target['image']}")
                 continue
-        torch.save(self.model.state_dict(), 'model_weights.pth')
 
+        torch.save(self.model.state_dict(), 'model_weights.pth')
+        bl_plot.plot(batch_x, loss_y)
+        plt.show()
 
 """
 https://discuss.pytorch.org/t/strange-behaviour-of-linear-layer/41366

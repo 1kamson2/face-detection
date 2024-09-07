@@ -11,3 +11,6 @@ def main():
 
 if __name__ == '__main__':
     main()
+
+#todo:
+# replace all python arrays with numpy arrays - they are faster
