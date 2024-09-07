@@ -5,8 +5,6 @@ from tools.training_app import *
 
 def main():
     training_app = TrainingApp('age')
-    test = AgeModel()
-    print()
     for epoch in range(20):
         training_app.training_loop()
 

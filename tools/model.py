@@ -16,23 +16,22 @@ class AgeModel(nn.Module):
     def init_model(self):
         model = nn.Sequential(
             nn.Conv2d(in_channels=self.in_channels, out_channels=self.out_channels, kernel_size=3, padding=2),
-            nn.BatchNorm1d(self.out_channels),
+            nn.BatchNorm2d(self.out_channels),
             nn.ReLU(),
             nn.MaxPool2d(kernel_size=2, stride=2),
             nn.Conv2d(in_channels=self.out_channels, out_channels=2 * self.out_channels, kernel_size=3, padding=2),
             nn.ReLU(),
             nn.MaxPool2d(kernel_size=2, stride=2),
             nn.Flatten(),
-            nn.Linear(in_features=2 * self.out_channels + 69, out_features=2 * self.out_channels),
+            nn.Linear(in_features=10816, out_features=2 * self.out_channels),
             nn.Dropout(0.5),
             nn.Linear(2 * self.out_channels, 1),
             nn.Sigmoid(),
-
         )
         return model.to(self.device)
 
     def forward(self, model_input):
-        out = self.model(model_input).unsqueeze(0)
+        out = self.model(model_input)
         return out
 
 
