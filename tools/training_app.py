@@ -65,7 +65,6 @@ class TrainingApp:
                 loss.backward()
                 self.optimizer.step()
 
-                # too fast, we can update on every 10 batch, but plot on every 100?
                 if batch % 10 == 0:
                     print(batch)
                     batch_x = np.append(batch_x, batch)
@@ -76,9 +75,12 @@ class TrainingApp:
                     f"Couldn't access the required target: {target['image']}")
                 continue
 
-        torch.save(self.model.state_dict(), 'model_weights.pth')
         bl_plot.plot(batch_x, loss_y)
-        plt.show()
+        plt.show()  # <-- there is a better way somehow
+
+    @staticmethod
+    def save_model(self):
+        torch.save(self.model.state_dict(), '../FaceDetection/rsrc/model_weights.pth')
 
 """
 https://discuss.pytorch.org/t/strange-behaviour-of-linear-layer/41366
