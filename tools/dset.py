@@ -51,11 +51,9 @@ class FaceImages(Dataset):
     def __init__(self):
         super().__init__()
         self.transform = transforms.Compose([   # <-- put it later in test data
-            transforms.Resize(256),
+            transforms.Resize(60),
             transforms.CenterCrop(48),
-            transforms.Normalize(
-                (0.4915, 0.4823, 0.4468),
-                (0.2470, 0.2435, 0.2616)),])
+        ])
         self.images = self.get_images()
 
     def get_images(self):
@@ -77,3 +75,12 @@ class FaceImages(Dataset):
 
     def __len__(self):
         return len(self.images)
+
+
+"""
+transforms.Normalize(
+    (0.4915, 0.4823, 0.4468),
+    (0.2470, 0.2435, 0.2616)),  <-- doing this while taking a mean (to merge channels) means we normalize
+                                images two times.
+    find another way to merge channels, then use this.
+"""

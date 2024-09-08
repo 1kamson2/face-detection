@@ -33,5 +33,3 @@ class AgeModel(nn.Module):
     def forward(self, model_input):
         out = self.model(model_input)
         return out
-
-
