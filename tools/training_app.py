@@ -58,7 +58,7 @@ class TrainingApp:
         for batch, (target, model_input) in enumerate(train_dl):
             try:
                 prediction = self.model(model_input)  # sorts of work
-                loss = loss_fn(prediction, target['age'].unsqueeze(1))   # hard coded, make tensor
+                loss = loss_fn(prediction, target['age'].unsqueeze(1))   # hard coded, make tensor, move this operation
 
                 # back propagate
                 self.optimizer.zero_grad()
@@ -74,13 +74,13 @@ class TrainingApp:
                 print(f"\n Error: {e} \n"
                     f"Couldn't access the required target: {target['image']}")
                 continue
-
         bl_plot.plot(batch_x, loss_y)
         plt.show()  # <-- there is a better way somehow
 
     @staticmethod
     def save_model(self):
-        torch.save(self.model.state_dict(), '../FaceDetection/rsrc/model_weights.pth')
+        torch.save(self.model.state_dict(), f'../FaceDetection/rsrc/{self.what_model}_weights.pth')
+
 
 """
 https://discuss.pytorch.org/t/strange-behaviour-of-linear-layer/41366

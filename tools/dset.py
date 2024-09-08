@@ -20,7 +20,6 @@ IMG_PATH = "../FaceDetection/rsrc/images/"
 IMG_TYPE = "*.jpg"
 
 
-
 class FaceDataset(Dataset):
     def __init__(self):
         super().__init__()
@@ -57,25 +56,24 @@ class FaceImages(Dataset):
             transforms.Normalize(
                 (0.4915, 0.4823, 0.4468),
                 (0.2470, 0.2435, 0.2616)),])
-        self.images_dict = self.get_images()
+        self.images = self.get_images()
 
     def get_images(self):
         imgs_path = glob.glob(IMG_PATH + IMG_TYPE)
         assert len(imgs_path) >= 1, "No images found."
-        img_dict = {}
+        imgs_list = []
         for img in imgs_path:
-            img_t = read_image(img).float()
-            print(img_t.shape)
+            img_t = read_image(img).float() / 255.0 # <-- there must be a way to put this in transforms or something
             img_t = self.transform(img_t)
             img_t = torch.mean(img_t, dim=0)
             img_t = torch.reshape(img_t, (48, 48))
             img_t = torch.stack([img_t] * 3)
-            img_dict[img[len(IMG_PATH)]::] = img_t
-            print(img_t.shape)
-            print(img_dict)
-        return img_dict
+            imgs_list.append({"image": img[len(IMG_PATH)::], "data": img_t})
+        return imgs_list
 
-"""        img_pixels = read_image(img_path[index]).float()
-img_pixels /= 255.0
-pxls_tensor = self.transform(img_pixels).permute(1, 2, 0)
-# pxls_tensor = torch.mean(pxls_tensor, dim=-1)   # merge channels"""
+    @lru_cache(1, typed=True)
+    def __getitem__(self, index):
+        return self.images[index]
+
+    def __len__(self):
+        return len(self.images)
