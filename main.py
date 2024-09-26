@@ -14,7 +14,6 @@ def init_training(epochs: int):
 def init_prediction():
     dset = FaceImages()
     _set = FaceDataset()
-    print(_set[0])
     model = AgeModel()
     model.load_state_dict(torch.load("../FaceDetection/rsrc/age_weights.pth"))
     model.eval()

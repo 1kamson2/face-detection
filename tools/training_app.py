@@ -34,7 +34,7 @@ class TrainingApp:
 
     @staticmethod
     def init_loss_fn(self):
-        return nn.BCELoss()
+        return nn.MSELoss()
 
     @staticmethod
     def init_training_data(self):
