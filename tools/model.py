@@ -5,7 +5,7 @@ torch.manual_seed(123)
 
 
 class AgeModel(nn.Module):
-    def __init__(self, in_channels=3, out_channels=32):
+    def __init__(self, in_channels=1, out_channels=32):
         super().__init__()
         self.in_channels = in_channels
         self.out_channels = out_channels

@@ -11,19 +11,20 @@ def init_training(epochs: int):
     app.save_model(app)
 
 
-def init_prediction(idx: int):
+def init_prediction():
     dset = FaceImages()
+    _set = FaceDataset()
+    print(_set[0])
     model = AgeModel()
-    model.load_state_dict(torch.load("../FaceDetection/rsrc/model_weights.pth"))
-    plt.imshow(dset[idx]['data'].permute(1, 2, 0))
-    plt.show()
+    model.load_state_dict(torch.load("../FaceDetection/rsrc/age_weights.pth"))
     model.eval()
     with torch.no_grad():
-        print(f"Prediction of {dset[idx]['image']}, {model(dset[idx]['data'].unsqueeze(0))}")
+        for idx in range(len(dset)):
+            print(f"Prediction of {dset[idx]['image']}, {model(dset[idx]['data'].unsqueeze(0).unsqueeze(0))}")
 
 
 def main():
-    init_prediction(0)
+    init_prediction()
 
 
 if __name__ == '__main__':
@@ -34,4 +35,7 @@ if __name__ == '__main__':
 # check whether the model overfits (chpt 12)
 # check false positives, etc. (chpt 12)
 # fix bad clipped values - done
-# fix data set to get rid off random unsqueezes.
+# fix data set to get rid off random unsqueezes. - partially done
+# predict boxes on faces: https://pytorch.org/tutorials/intermediate/torchvision_tutorial.html
+# use the dataset from the other networks
+# getting rid of stacking pixels. - done

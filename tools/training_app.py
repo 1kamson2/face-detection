@@ -23,7 +23,7 @@ class TrainingApp:
         assert what_model in ['age', 'ethnicity', 'gender'], \
             f"{what_model} doesn't meet criteria."  # do case matching what to initialize
         self.what_model = what_model
-        self.model = AgeModel(in_channels=3, out_channels=32)     # now only this.
+        self.model = AgeModel(in_channels=1, out_channels=32)     # now only this.
         self.lr = lr
         self.momentum = momentum
         self.optimizer = self.init_optimizer(self)
@@ -57,7 +57,7 @@ class TrainingApp:
 
         for batch, (target, model_input) in enumerate(train_dl):
             try:
-                prediction = self.model(model_input)  # sorts of work
+                prediction = self.model(model_input.unsqueeze(1))  # sorts of work
                 loss = loss_fn(prediction, target['age'].unsqueeze(1))   # hard coded, make tensor, move this operation
 
                 # back propagate

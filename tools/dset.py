@@ -19,6 +19,10 @@ CSV_PATH = "../FaceDetection/rsrc/age_gender.csv"
 IMG_PATH = "../FaceDetection/rsrc/images/"
 IMG_TYPE = "*.jpg"
 
+_MAX_AGE = 120
+_MAX_ETHNICITY = 10
+_MAX_GENDER = 2
+
 
 class FaceDataset(Dataset):
     def __init__(self):
@@ -30,13 +34,14 @@ class FaceDataset(Dataset):
         data_info = list()
         for data in (row for row in pd.read_csv(CSV_PATH, delimiter=',').itertuples()):
             img_pxls = np.array([pixel for pixel in data[-1].split(' ')], dtype=np.float32)
-            pxls_tensor = torch.from_numpy(img_pxls)
-            pxls_tensor = torch.reshape(pxls_tensor, (48, 48))
-            pxls_tensor /= 255.0
-            pxls_tensor = (torch.stack([pxls_tensor, pxls_tensor, pxls_tensor]))
+            pxls_tensor = torch.from_numpy(img_pxls).view(-1, 48) / 255.0
             key, values = data[4], torch.tensor(data[1:4], dtype=torch.float32)
-            data_info.append([{'image': key, 'age': values[0]/120, 'ethnicity': values[1]/10, 'gender': values[2]/2},
-                        pxls_tensor])
+            data_info.append(
+                [{'image': key,
+                  'age': values[0] / _MAX_AGE,
+                  'ethnicity': values[1] / _MAX_ETHNICITY,
+                  'gender': values[2] / _MAX_GENDER},
+                pxls_tensor])
         return data_info
 
     @lru_cache(1, typed=True)
@@ -61,11 +66,9 @@ class FaceImages(Dataset):
         assert len(imgs_path) >= 1, "No images found."
         imgs_list = []
         for img in imgs_path:
-            img_t = read_image(img).float() / 255.0 # <-- there must be a way to put this in transforms or something
+            img_t = read_image(img).float() / 255.0     # <--there must be a way to put this in transforms or something
             img_t = self.transform(img_t)
-            img_t = torch.mean(img_t, dim=0)
-            img_t = torch.reshape(img_t, (48, 48))
-            img_t = torch.stack([img_t] * 3)
+            img_t = torch.mean(img_t, dim=0).view(-1, 48)
             imgs_list.append({"image": img[len(IMG_PATH)::], "data": img_t})
         return imgs_list
 
