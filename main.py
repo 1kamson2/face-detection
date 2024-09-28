@@ -4,7 +4,7 @@ from tools.training_app import *
 
 
 def init_training(epochs: int):
-    app = TrainingApp('age')
+    app = TrainingApp(what_model=Models.ETHNICITY_MODEL)
     for epoch in range(epochs):
         app.training_loop()
 
@@ -21,9 +21,20 @@ def init_prediction():
         for idx in range(len(dset)):
             print(f"Prediction of {dset[idx]['image']}, {model(dset[idx]['data'].unsqueeze(0).unsqueeze(0))}")
 
+def init_prediction2():
+    dset = FaceImages()
+    _set = FaceDataset()
+    model = GenderModel()
+    model.load_state_dict(torch.load("../FaceDetection/rsrc/age_weights.pth"))
+    model.eval()
+    with torch.no_grad():
+        for idx in range(len(dset)):
+            print(f"Prediction of {dset[idx]['image']}, {model(dset[idx]['data'].unsqueeze(0).unsqueeze(0))}")
+
+
 
 def main():
-    init_prediction()
+    init_training(epochs=1)
 
 
 if __name__ == '__main__':
