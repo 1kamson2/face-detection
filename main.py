@@ -4,18 +4,25 @@ from tools.training_app import *
 
 
 def init_training(epochs: int):
-    app = TrainingApp(what_model=Models.ETHNICITY_MODEL)
-    for epoch in range(epochs):
-        app.training_loop()
 
-    app.save_model(app)
+    app1 = TrainingApp(what_model=Models.AGE_MODEL)
+    app1.training_loop(epochs)
+    app1.save_model(app1)
 
+    app2 = TrainingApp(what_model=Models.ETHNICITY_MODEL)
+    app2.training_loop(epochs)
+    app2.save_model(app2)
+
+    # app3 = TrainingApp(what_model=Models.GENDER_MODEL)
+    # app3.training_loop(epochs)
+    # app3.save_model(app3)
+    # doesn't work in the current loop
 
 def init_prediction():
     dset = FaceImages()
     _set = FaceDataset()
     model = AgeModel()
-    model.load_state_dict(torch.load("../FaceDetection/rsrc/age_weights.pth"))
+    model.load_state_dict(torch.load("../FaceDetection/rsrc/Models.AGE_MODEL_weights.pth"))
     model.eval()
     with torch.no_grad():
         for idx in range(len(dset)):
@@ -24,8 +31,8 @@ def init_prediction():
 def init_prediction2():
     dset = FaceImages()
     _set = FaceDataset()
-    model = GenderModel()
-    model.load_state_dict(torch.load("../FaceDetection/rsrc/age_weights.pth"))
+    model = EthnicityModel()
+    model.load_state_dict(torch.load("../FaceDetection/rsrc/Models.ETHNICITY_MODEL_weights.pth"))
     model.eval()
     with torch.no_grad():
         for idx in range(len(dset)):
@@ -34,7 +41,8 @@ def init_prediction2():
 
 
 def main():
-    init_training(epochs=1)
+    init_prediction()
+    init_prediction2()
 
 
 if __name__ == '__main__':

@@ -35,12 +35,15 @@ class FaceDataset(Dataset):
         for data in (row for row in pd.read_csv(CSV_PATH, delimiter=',').itertuples()):
             img_pxls = np.array([pixel for pixel in data[-1].split(' ')], dtype=np.float32)
             pxls_tensor = torch.from_numpy(img_pxls).view(-1, 48) / 255.0
-            key, values = data[4], torch.tensor(data[1:4], dtype=torch.float32)
+            (img_name, age, eth, gen) = (data[4],
+                                       torch.tensor(data[1], dtype=torch.float32).div(_MAX_AGE),
+                                       torch.tensor(data[2], dtype=torch.long).div(_MAX_ETHNICITY),
+                                       torch.tensor(data[3], dtype=torch.float32).div(_MAX_GENDER))
             data_info.append(
-                [{'image': key,
-                  'age': values[0] / _MAX_AGE,
-                  'ethnicity': values[1] / _MAX_ETHNICITY,
-                  'gender': values[2] / _MAX_GENDER},
+                [{'image':      img_name,
+                  'age':        age,
+                  'ethnicity':  eth,
+                  'gender':     gen},
                 pxls_tensor])
         return data_info
 

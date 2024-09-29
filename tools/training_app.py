@@ -29,7 +29,7 @@ class TrainingApp:
         assert what_model in [Models.AGE_MODEL, Models.ETHNICITY_MODEL, Models.GENDER_MODEL], \
             f"{what_model} doesn't meet criteria."  # do case matching what to initialize
         self.what_model = what_model
-        self.model = AgeModel(in_channels=1, out_channels=32)     # now only this.
+        self.model = self.get_model(self)    # now only this.
         self.lr = lr
         self.momentum = momentum
         self.optimizer = self.init_optimizer(self)
@@ -38,11 +38,11 @@ class TrainingApp:
     def get_model(self):
         match self.what_model:
             case Models.AGE_MODEL:
-                self.model = AgeModel(in_channels=1, out_channels=32)
+                return AgeModel(in_channels=1, out_channels=32)
             case Models.GENDER_MODEL:
-                self.model = GenderModel(in_channels=1, out_channels=32)
+                return GenderModel(in_channels=1, out_channels=32)
             case Models.ETHNICITY_MODEL:
-                self.model = AgeModel(in_channels=1, out_channels=32)   # todo: <-- change later
+                return EthnicityModel(in_channels=1, out_channels=32)   # todo: <-- change later
             case _:
                 raise NotImplementedError("Model not implemented.")
 
@@ -78,7 +78,7 @@ class TrainingApp:
         train_dl = DataLoader(train_ds, batch_size=batch_size, shuffle=True)
         return train_dl, target_name
 
-    def training_loop(self):
+    def training_loop(self, epochs):
         train_dl, target_name = self.init_training_data(self)
         loss_fn = self.init_loss_fn(self)
 
@@ -89,26 +89,35 @@ class TrainingApp:
         fig, bl_plot = plt.subplots()
         bl_plot.set_xlabel('Batch')
         bl_plot.set_ylabel('Loss')
+        nbatch = 0
+        f = lambda t: t.unsqueeze(1) if self.what_model is not Models.ETHNICITY_MODEL else t.long()
+        for epoch in range(epochs):
+            batch = 0
+            for batch, (target, model_input) in enumerate(train_dl):
+                try:
+                    prediction = self.model(model_input.unsqueeze(1))  # sorts of work
+                    loss = loss_fn(prediction, f(target[target_name]))   # hard coded, make tensor, move this operation
 
-        for batch, (target, model_input) in enumerate(train_dl):
-            try:
-                prediction = self.model(model_input.unsqueeze(1))  # sorts of work
-                loss = loss_fn(prediction, target[target_name].unsqueeze(1))   # hard coded, make tensor, move this operation
+                    # todo: age needs .unsqueeze(1)
+                    # todo: ethnicity doesn't
+                    # todo: gender needs .unsqueeze(1)
 
-                # back propagate
-                self.optimizer.zero_grad()
-                loss.backward()
-                self.optimizer.step()
+                    # back propagate
+                    self.optimizer.zero_grad()
+                    loss.backward()
+                    self.optimizer.step()
 
-                if batch % 10 == 0:
-                    print(batch)
-                    batch_x = np.append(batch_x, batch)
-                    loss_y = np.append(loss_y, loss.item())
+                    if batch % 10 == 0:
+                        print(nbatch + batch)
+                        batch_x = np.append(batch_x, nbatch + batch)
+                        loss_y = np.append(loss_y, loss.item())
 
-            except Exception as e:
-                print(f"\n Error: {e} \n"
-                    f"Couldn't access the required target: {target['image']}")
-                continue
+                except Exception as e:
+                    print(f"\n Error: {e} \n"
+                        f"Couldn't access the required target: {target['image']} {target[target_name]}")
+                    continue
+            else:
+                nbatch += batch
         bl_plot.plot(batch_x, loss_y)
         plt.show()  # <-- there is a better way somehow
 
