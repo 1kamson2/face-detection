@@ -1,25 +1,19 @@
+from PIL.Image import MODES
 import imageio.v3 as iio
 from matplotlib import pyplot as plt
 import numpy as np
 import torch
 import torch.nn as nn
-import torch.nn.functional as F
-import torch.optim as optim
-from torch.utils.data import Dataset, DataLoader
-from torchvision import models, transforms, datasets
-from torchvision.io import read_image
-from PIL import Image
-import csv
-import glob
+from torch.utils.data import DataLoader
+import os
 from tools.model import *
 from tools.dset import *
 torch.set_printoptions(edgeitems=2)
 torch.manual_seed(123)
-from torch.optim import SGD
-
+from torch.optim.sgd import SGD
 
 class Models(Enum):
-    AGE_MODEL = 0
+    AGE_MODEL = 0   
     GENDER_MODEL = 1
     ETHNICITY_MODEL = 2
 
@@ -122,11 +116,39 @@ class TrainingApp:
         plt.show()  # <-- there is a better way somehow
 
     @staticmethod
-    def save_model(self):
-        torch.save(self.model.state_dict(), f'../FaceDetection/rsrc/{self.what_model}_weights.pth')
+    def save_model(cls):
+        torch.save(cls.model.state_dict(), f'{SOURCE_DIR}/rsrc/{cls.what_model}_WEIGHTS.pth')
+
+
+class Evaluation:
+    def __init__(self, usr_model: Models):
+        self.usr_model = usr_model
+        self.dset = FaceImages()
+        self.model = self.get_model(self) 
+    
+    @staticmethod
+    def get_model(self):
+        match self.usr_model:
+            case  Models.AGE_MODEL:
+                return AgeModel(in_channels=1, out_channels=32)
+            case Models.GENDER_MODEL:
+                return GenderModel(in_channels=1, out_channels=32)
+            case Models.ETHNICITY_MODEL:
+                return EthnicityModel(in_channels=1, out_channels=32)
+            case _:
+                print("Model doesn't exist.")
+
+    @staticmethod
+    def main(self):
+        self.model.load_state_dict(torch.load(f"{SOURCE_DIR}/rsrc/{self.usr_model}_WEIGHTS.pth"))
+        self.model.eval()
+        with torch.no_grad():
+            for idx in range(len(self.dset)):
+                print(f"Prediction of {self.dset[idx]['image']}, {self.model(self.dset[idx]['data'].unsqueeze(0).unsqueeze(0))}")
 
 
 """
+
 https://discuss.pytorch.org/t/strange-behaviour-of-linear-layer/41366
 
 """

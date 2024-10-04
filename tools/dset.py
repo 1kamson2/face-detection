@@ -1,22 +1,17 @@
-import imageio.v3 as iio
-from matplotlib import pyplot as plt
 import numpy as np
 import torch
-import torch.nn as nn
-import torch.nn.functional as F
-import torch.optim as optim
 from torch.utils.data import Dataset
 from torchvision import models, transforms, datasets
 from torchvision.io import read_image
-from PIL import Image
 import pandas as pd
-import csv
 import glob
 torch.set_printoptions(edgeitems=2)
 torch.manual_seed(123)
 from functools import lru_cache
-CSV_PATH = "../FaceDetection/rsrc/age_gender.csv"
-IMG_PATH = "../FaceDetection/rsrc/images/"
+import os
+SOURCE_DIR = os.path.abspath(os.curdir)
+CSV_PATH = f"{SOURCE_DIR}/rsrc/age_gender.csv"
+IMG_PATH = f"{SOURCE_DIR}/rsrc/images/"
 IMG_TYPE = "*.jpg"
 
 _MAX_AGE = 120
